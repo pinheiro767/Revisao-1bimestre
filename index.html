@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casos Clínicos — Sistema Muscular</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#050505" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <section id="lockScreen" class="lock-screen">
+    <div class="lock-card">
+      <div class="badge">🔒 PWA Educacional</div>
+      <h1>Casos Clínicos<br>Sistema Muscular</h1>
+      <p>Curso de Ciências Biológicas — Anatomia Humana</p>
+      <input id="password" type="password" inputmode="numeric" placeholder="Digite o código" />
+      <button onclick="unlockApp()">Entrar</button>
+      <small>Código de acesso: 2026</small>
+      <p id="error" class="error"></p>
+    </div>
+  </section>
+
+  <main id="app" class="app hidden">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Curso de Ciências Biológicas</p>
+        <h1>Casos Clínicos — Sistema Muscular</h1>
+        <p>Macroscopia • Funções musculares • Compartimentos fasciais • Fáscias • Septos intermusculares</p>
+      </div>
+      <div class="actions">
+        <label class="file-btn">📎 Incluir arquivos
+          <input id="fileInput" type="file" multiple onchange="handleFiles(event)" />
+        </label>
+        <button onclick="openNotes()">📝 Incluir anotações</button>
+        <button onclick="generatePDF()">📄 Gerar PDF</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <input id="search" type="search" placeholder="Pesquisar por caso, músculo, fáscia, função..." oninput="renderCards()" />
+      <div class="stats"><span id="count"></span><span id="fileCount">0 arquivos incluídos</span></div>
+    </section>
+
+    <section id="notesBox" class="notes-box hidden">
+      <h2>Anotações da professora</h2>
+      <textarea id="teacherNotes" placeholder="Digite aqui observações, comentários para a turma ou critérios de correção..."></textarea>
+      <button onclick="saveNotes()">Salvar anotações</button>
+    </section>
+
+    <section id="filesBox" class="files-box hidden">
+      <h2>Arquivos incluídos</h2>
+      <ul id="fileList"></ul>
+    </section>
+
+    <section id="pdfArea">
+      <div class="pdf-title">
+        <h2>Cards dos Casos Clínicos</h2>
+        <p>Use os botões “Ver pergunta” e “Ver resposta” para estudar em etapas.</p>
+      </div>
+      <div id="cards" class="cards"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
