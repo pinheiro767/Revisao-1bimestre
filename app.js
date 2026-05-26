@@ -24,11 +24,38 @@ const cases = [
 let uploadedFiles=[];
 function unlockApp(){const pass=document.getElementById('password').value.trim();if(pass===PASSWORD){document.getElementById('lockScreen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');localStorage.setItem('muscularUnlocked','yes');renderCards();registerSW();}else{document.getElementById('error').textContent='Código incorreto. Tente novamente.'}}
 window.addEventListener('load',()=>{if(localStorage.getItem('muscularUnlocked')==='yes'){document.getElementById('lockScreen').classList.add('hidden');document.getElementById('app').classList.remove('hidden');renderCards();registerSW();}document.getElementById('teacherNotes').value=localStorage.getItem('teacherNotes')||''});
-function renderCards(){const term=(document.getElementById('search')?.value||'').toLowerCase();const list=cases.filter(x=>(x.t+x.c+x.q+x.a).toLowerCase().includes(term));document.getElementById('count').textContent=`${list.length} de ${cases.length} casos exibidos`;document.getElementById('cards').innerHTML=list.map(item=>`<article class="card"><div class="case-number"><strong>CASO ${item.n}</strong><span class="tag">Macroscopia</span></div><h3>${item.t}</h3><p class="case-text">${item.c}</p><div class="qa"><button onclick="toggle('q${item.n}')">Ver pergunta</button><div id="q${item.n}" class="qa-content hidden">${item.q}</div><button onclick="toggle('a${item.n}')">Ver resposta</button><div id="a${item.n}" class="qa-content hidden">${item.a}</div></div></article>`).join('');}
+function renderCards(){
+  const term=(document.getElementById('search')?.value||'').toLowerCase();
+  const list=cases.filter(x=>(x.t+x.c+x.q).toLowerCase().includes(term));
+  document.getElementById('count').textContent=`${list.length} de ${cases.length} casos exibidos`;
+  document.getElementById('cards').innerHTML=list.map(item=>`
+    <article class="card">
+      <div class="case-number"><strong>CASO ${item.n}</strong><span class="tag">Macroscopia</span></div>
+      <h3>${item.t}</h3>
+      <p class="case-text">${item.c}</p>
+      <div class="qa">
+        <button onclick="toggle('q${item.n}')">Ver pergunta</button>
+        <div id="q${item.n}" class="qa-content hidden">${item.q}</div>
+        <button class="answer-btn" onclick="askAnswerPassword(${item.n})">🔒 Liberar resposta</button>
+        <div id="a${item.n}" class="qa-content answer-content hidden"></div>
+      </div>
+    </article>`).join('');
+}
 function toggle(id){document.getElementById(id).classList.toggle('hidden')}
+function askAnswerPassword(n){
+  const pass = prompt('Digite o código da professora para liberar a resposta:');
+  if(pass === PASSWORD){
+    const item = cases.find(c => c.n === n);
+    const box = document.getElementById('a'+n);
+    box.textContent = item.a;
+    box.classList.remove('hidden');
+  } else if(pass !== null){
+    alert('Código incorreto. A resposta continuará oculta.');
+  }
+}
 function openNotes(){document.getElementById('notesBox').classList.toggle('hidden')}
 function saveNotes(){localStorage.setItem('teacherNotes',document.getElementById('teacherNotes').value);alert('Anotações salvas no navegador.')}
 function handleFiles(e){uploadedFiles=[...uploadedFiles,...Array.from(e.target.files)];document.getElementById('filesBox').classList.remove('hidden');document.getElementById('fileCount').textContent=`${uploadedFiles.length} arquivo(s) incluído(s)`;document.getElementById('fileList').innerHTML=uploadedFiles.map(f=>`<li>${f.name} — ${(f.size/1024).toFixed(1)} KB</li>`).join('')}
-function expandAll(){document.querySelectorAll('.qa-content').forEach(el=>el.classList.remove('hidden'))}
-function generatePDF(){expandAll();const notes=document.getElementById('teacherNotes').value.trim();let old=document.getElementById('printNotes');if(old)old.remove();if(notes){const div=document.createElement('div');div.id='printNotes';div.className='note-print';div.innerHTML='<h2>Anotações da professora</h2>'+notes.replace(/\n/g,'<br>');document.getElementById('pdfArea').prepend(div)}const opt={margin:0.45,filename:'casos-clinicos-sistema-muscular.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'in',format:'a4',orientation:'portrait'}};html2pdf().set(opt).from(document.getElementById('pdfArea')).save()}
+function expandQuestionsOnly(){document.querySelectorAll('[id^=q]').forEach(el=>el.classList.remove('hidden'));document.querySelectorAll('.answer-content').forEach(el=>{el.textContent='';el.classList.add('hidden')})}
+function generatePDF(){expandQuestionsOnly();const notes=document.getElementById('teacherNotes').value.trim();let old=document.getElementById('printNotes');if(old)old.remove();if(notes){const div=document.createElement('div');div.id='printNotes';div.className='note-print';div.innerHTML='<h2>Anotações da professora</h2>'+notes.replace(/\n/g,'<br>');document.getElementById('pdfArea').prepend(div)}const opt={margin:0.45,filename:'casos-clinicos-sistema-muscular.pdf',image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'in',format:'a4',orientation:'portrait'}};html2pdf().set(opt).from(document.getElementById('pdfArea')).save()}
 function registerSW(){if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}}
